@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
-
 public class MainActivity extends AppCompatActivity implements PreviewView.OnPreviewChangeListener {
 
     private static final int PICK_FILE_REQUEST_CODE = 2;
