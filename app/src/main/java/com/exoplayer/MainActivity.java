@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements PreviewView.OnPre
 
     PlayerView exoPlayerView;
     SimpleExoPlayer exoPlayer;
-    String url = "https://www2497.playercdn.net/185/0/rdRbiDjPgI_xFADS_wLpfA/1528997667/180609/U29MgJE2FRiyHeM.mp4";
+    String url = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
