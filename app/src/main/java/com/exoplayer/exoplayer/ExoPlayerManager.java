@@ -18,12 +18,14 @@
 package com.exoplayer.exoplayer;
 
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.widget.ImageView;
 
 import com.bumptech.glide.request.target.Target;
 import com.exoplayer.glide.GlideApp;
-import com.exoplayer.glide.GlideThumbnailTransformation;
 import com.github.rubensousa.previewseekbar.base.PreviewLoader;
 import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBarLayout;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -40,6 +42,9 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Util;
 
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+
 public class ExoPlayerManager implements PreviewLoader {
 
     private ExoPlayerMediaSourceBuilder mediaSourceBuilder;
@@ -48,6 +53,7 @@ public class ExoPlayerManager implements PreviewLoader {
     private PreviewTimeBarLayout previewTimeBarLayout;
     private String thumbnailsUrl;
     private ImageView imageView;
+    private Context context;
     private Player.EventListener eventListener = new Player.DefaultEventListener() {
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -59,12 +65,13 @@ public class ExoPlayerManager implements PreviewLoader {
 
     public ExoPlayerManager(SimpleExoPlayerView playerView,
                             PreviewTimeBarLayout previewTimeBarLayout, ImageView imageView,
-                            String thumbnailsUrl) {
+                            String thumbnailsUrl, Context context) {
         this.playerView = playerView;
         this.imageView = imageView;
         this.previewTimeBarLayout = previewTimeBarLayout;
         this.mediaSourceBuilder = new ExoPlayerMediaSourceBuilder(playerView.getContext());
         this.thumbnailsUrl = thumbnailsUrl;
+        this.context = context;
     }
 
     public void play(Uri uri) {
@@ -131,10 +138,20 @@ public class ExoPlayerManager implements PreviewLoader {
     @Override
     public void loadPreview(long currentPosition, long max) {
         player.setPlayWhenReady(true);
-        GlideApp.with(imageView)
-                .load(thumbnailsUrl)
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(thumbnailsUrl, new HashMap<String, String>());
+        Bitmap image = retriever.getFrameAtTime(2*1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        GlideApp.with(context)
+                .load(stream.toByteArray())
                 .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                .transform(new GlideThumbnailTransformation(currentPosition))
                 .into(imageView);
+
+        /*GlideApp.with(imageView)
+                .load("https://s3-eu-west-1.amazonaws.com/dailybestpubblici/wp-content/uploads/2018/03/jurassic_park.jpg")
+                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                .into(imageView);*/
     }
 }
